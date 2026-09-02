@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Cuestionario de diagnóstico comercial para Floristería La Isabella.">
+  <meta name="theme-color" content="#4f6040">
+  <title>Cuestionario | Floristería La Isabella</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="page-orb page-orb-one" aria-hidden="true"></div>
+  <div class="page-orb page-orb-two" aria-hidden="true"></div>
+
+  <main class="site-shell">
+    <header class="brand-lockup" aria-label="Floristería La Isabella">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+      <div>
+        <p class="brand-kicker">Florería</p>
+        <p class="brand-name">La Isabella</p>
+      </div>
+    </header>
+
+    <section class="intro-card" id="introCard">
+      <div class="intro-copy">
+        <p class="eyebrow">Diagnóstico comercial</p>
+        <h1>Conozcamos mejor cómo florecen sus ventas</h1>
+        <p class="lead">Este cuestionario reúne información sobre el equipo, los clientes, el proceso de venta y los resultados de Floristería La Isabella.</p>
+        <ul class="intro-points">
+          <li>35 preguntas organizadas en 6 temas.</li>
+          <li>Puede tomar aproximadamente 12–15 minutos.</li>
+          <li>Su avance se guarda en este dispositivo.</li>
+        </ul>
+        <button class="button button-primary button-large" type="button" id="startButton">Comenzar cuestionario</button>
+        <p class="privacy-note"><span aria-hidden="true">●</span> Sus respuestas se envían directamente a un documento privado de Google Sheets.</p>
+      </div>
+      <div class="intro-art" aria-hidden="true">
+        <div class="vase">
+          <span class="stem stem-one"></span>
+          <span class="stem stem-two"></span>
+          <span class="stem stem-three"></span>
+          <span class="bloom bloom-one"></span>
+          <span class="bloom bloom-two"></span>
+          <span class="bloom bloom-three"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="questionnaire" id="questionnaire" hidden>
+      <div class="survey-topline">
+        <div>
+          <p class="section-name" id="sectionName">Equipo y organización de ventas</p>
+          <p class="question-count">Pregunta <span id="currentNumber">1</span> de <span id="totalNumber">35</span></p>
+        </div>
+        <button class="save-status" id="saveStatus" type="button" title="El avance se guarda automáticamente">Avance guardado</button>
+      </div>
+
+      <div class="progress-track" role="progressbar" aria-label="Progreso del cuestionario" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span id="progressBar"></span>
+      </div>
+
+      <form id="surveyForm" novalidate>
+        <div class="question-card" id="questionCard" aria-live="polite"></div>
+        <p class="form-error" id="formError" role="alert"></p>
+        <div class="survey-actions">
+          <button class="button button-secondary" type="button" id="previousButton">Anterior</button>
+          <button class="button button-primary" type="button" id="nextButton">Siguiente</button>
+          <button class="button button-primary" type="submit" id="submitButton" hidden>Enviar respuestas</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">Preparado con cuidado para Floristería La Isabella</footer>
+  <script src="assets/config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
