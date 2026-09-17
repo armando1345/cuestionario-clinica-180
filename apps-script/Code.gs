@@ -1,29 +1,25 @@
 /**
- * Receptor directo del cuestionario de Floristería La Isabella.
+ * Receptor directo del cuestionario de Clínica 180°.
  * Este proyecto debe permanecer vinculado a la hoja de respuestas.
  */
 const SHEET_NAME = "Respuestas";
-const FORM_KEY = "isabella_6e4a90d31f7c";
+const FORM_KEY = "clinica180_4d8c72b19a6f";
 
 const HEADERS = [
   "created_at", "response_id", "started_at", "submitted_at", "duration_seconds",
   "survey_version", "landing_page", "referrer_url", "utm_source", "utm_medium",
   "utm_campaign", "user_agent",
-  "q01_personas_total", "q02_personas_ventas", "q03_responsabilidades",
-  "q04_tareas_ventas", "q05_capacitacion", "q06_metas_ventas",
-  "q07_tipos_metas", "q08_frecuencia_revision", "q09_clientes_prioritarios",
-  "q10_priorizacion_productos", "q11_captacion_clientes", "q12_canales_consultas",
-  "q13_canal_mayor_ventas", "q14_proceso_ventas", "q15_info_recomendacion",
-  "q16_seguimiento_consultas", "q17_registro_no_venta", "q18_razones_no_compra",
-  "q19_manejo_reclamos", "q20_contacto_postventa", "q21_tipos_clientes",
-  "q22_ocasiones_venta", "q23_porcentaje_recompra", "q24_comparacion_competencia",
-  "q25_criterios_comparacion", "q26_solicitud_descuentos",
-  "q27_alternativas_flores", "q28_factores_decision_top3",
-  "q29_proveedores_principales", "q30_facilidad_sustitucion",
-  "q31_aumentos_precios", "q31_falta_flores_insumos",
-  "q31_retrasos_entregas", "q31_problemas_calidad",
-  "q32_registro_ventas", "q33_datos_venta", "q34_indicadores",
-  "q35_obstaculos", "answers_json"
+  "q01_ingreso_la_mascota", "q01_ingreso_la_sultana", "q01_ingreso_santa_elena",
+  "q01_ingreso_nuevo_cuscatlan", "q01_ingreso_zaragoza",
+  "q02_ganancia_la_mascota", "q02_ganancia_la_sultana", "q02_ganancia_santa_elena",
+  "q02_ganancia_nuevo_cuscatlan", "q02_ganancia_zaragoza",
+  "q03_presupuesto_publicidad", "q04_presupuesto_capacitacion_ventas",
+  "q05_clientes_la_mascota", "q05_clientes_la_sultana", "q05_clientes_santa_elena",
+  "q05_clientes_nuevo_cuscatlan", "q05_clientes_zaragoza",
+  "q06_porcentaje_servicios", "q06_porcentaje_productos",
+  "q07_mayores_ingresos", "q08_mayor_margen",
+  "q09_comportamiento_ventas", "q09_porcentaje_variacion",
+  "q10_meta_crecimiento", "answers_json"
 ];
 
 function doPost(e) {
@@ -38,12 +34,18 @@ function doPost(e) {
     if (payload.form_key !== FORM_KEY) return json_({ ok: false, error: "unauthorized" });
 
     lock.waitLock(30000);
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-    if (!sheet) throw new Error("No existe la pestaña " + SHEET_NAME);
+    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = spreadsheet.getSheetByName(SHEET_NAME);
+    if (!sheet) sheet = spreadsheet.insertSheet(SHEET_NAME);
     ensureHeaders_(sheet);
 
     const answers = payload.answers || {};
-    const matrix = answers.q31 || {};
+    const income = answers.q01 || {};
+    const profit = answers.q02 || {};
+    const clients = answers.q05 || {};
+    const mix = answers.q06 || {};
+    const change = answers.q09 || {};
+
     const row = [
       new Date(),
       clean_(payload.response_id),
@@ -57,22 +59,17 @@ function doPost(e) {
       clean_(payload.utm_medium),
       clean_(payload.utm_campaign),
       clean_(payload.user_agent),
-      cell_(answers.q01), cell_(answers.q02), cell_(answers.q03),
-      cell_(answers.q04), cell_(answers.q05), cell_(answers.q06),
-      cell_(answers.q07), cell_(answers.q08), cell_(answers.q09),
-      cell_(answers.q10), cell_(answers.q11), cell_(answers.q12),
-      cell_(answers.q13), cell_(answers.q14), cell_(answers.q15),
-      cell_(answers.q16), cell_(answers.q17), cell_(answers.q18),
-      cell_(answers.q19), cell_(answers.q20), cell_(answers.q21),
-      cell_(answers.q22), cell_(answers.q23), cell_(answers.q24),
-      cell_(answers.q25), cell_(answers.q26), cell_(answers.q27),
-      cell_(answers.q28), cell_(answers.q29), cell_(answers.q30),
-      cell_(matrix["Aumentos importantes de precios"]),
-      cell_(matrix["Falta de flores o insumos"]),
-      cell_(matrix["Retrasos en entregas"]),
-      cell_(matrix["Problemas de calidad"]),
-      cell_(answers.q32), cell_(answers.q33), cell_(answers.q34),
-      cell_(answers.q35), JSON.stringify(answers)
+      number_(income["La Mascota"]), number_(income["La Sultana"]),
+      number_(income["Santa Elena"]), number_(income["Nuevo Cuscatlán"]), number_(income.Zaragoza),
+      number_(profit["La Mascota"]), number_(profit["La Sultana"]),
+      number_(profit["Santa Elena"]), number_(profit["Nuevo Cuscatlán"]), number_(profit.Zaragoza),
+      number_(answers.q03), number_(answers.q04),
+      number_(clients["La Mascota"]), number_(clients["La Sultana"]),
+      number_(clients["Santa Elena"]), number_(clients["Nuevo Cuscatlán"]), number_(clients.Zaragoza),
+      number_(mix.Servicios), number_(mix.Productos),
+      cell_(answers.q07), cell_(answers.q08),
+      cell_(change.direccion), number_(change.porcentaje),
+      number_(answers.q10), JSON.stringify(answers)
     ];
 
     sheet.appendRow(row);
@@ -86,7 +83,7 @@ function doPost(e) {
 }
 
 function doGet() {
-  return json_({ ok: true, service: "Florería La Isabella" });
+  return json_({ ok: true, service: "Clínica 180°" });
 }
 
 function ensureHeaders_(sheet) {
@@ -94,6 +91,13 @@ function ensureHeaders_(sheet) {
   if (current.join("|") !== HEADERS.join("|")) {
     sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
   }
+  sheet.setFrozenRows(1);
+  sheet.setHiddenGridlines(true);
+  sheet.getRange(1, 1, 1, HEADERS.length)
+    .setBackground("#e8b7c4")
+    .setFontColor("#171315")
+    .setFontWeight("bold")
+    .setWrap(true);
 }
 
 function cell_(value) {
@@ -101,6 +105,12 @@ function cell_(value) {
   if (value === null || typeof value === "undefined") return "";
   if (typeof value === "object") return JSON.stringify(value);
   return clean_(value);
+}
+
+function number_(value) {
+  if (value === "" || value === null || typeof value === "undefined") return "";
+  const number = Number(value);
+  return Number.isFinite(number) ? number : "";
 }
 
 function clean_(value) {

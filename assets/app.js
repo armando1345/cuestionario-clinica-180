@@ -1,232 +1,84 @@
 (function () {
   "use strict";
 
-  const publicConfig = window.LA_ISABELLA_CONFIG || {};
+  const publicConfig = window.CLINICA_180_CONFIG || window.LA_ISABELLA_CONFIG || {};
 
   const CONFIG = {
     endpoint: publicConfig.endpoint || "",
-    formKey: "isabella_6e4a90d31f7c",
-    surveyVersion: "1.0",
-    storageKey: "la_isabella_cuestionario_borrador_v1"
+    formKey: "clinica180_4d8c72b19a6f",
+    surveyVersion: "2.1",
+    storageKey: "clinica_180_cuestionario_borrador_v2"
   };
 
+  const BRANCHES = [
+    "La Mascota",
+    "La Sultana",
+    "Santa Elena",
+    "Nuevo Cuscatlán",
+    "Zaragoza"
+  ];
+
   const SECTIONS = {
-    equipo: "1. Equipo y organización de ventas",
-    estrategia: "2. Estrategia y objetivos comerciales",
-    proceso: "3. Proceso de ventas",
-    clientes: "4. Clientes y comportamiento de compra",
-    proveedores: "5. Proveedores",
-    resultados: "6. Resultados y control de ventas"
+    finanzas: "1. Desempeño financiero",
+    inversion: "2. Publicidad y capacitación",
+    clientes: "3. Clientes y mezcla de ingresos",
+    portafolio: "4. Servicios y rentabilidad",
+    crecimiento: "5. Evolución y metas"
   };
 
   const QUESTIONS = [
     {
-      id: "q01", section: "equipo", type: "single",
-      text: "¿Cuántas personas trabajan actualmente en Floristería La Isabella?",
-      options: ["1", "2", "3", "4", "Otro"], other: "Otro"
+      id: "q01", section: "finanzas", type: "branchTable", valueType: "currency",
+      text: "¿Cuántos ingresos genera en promedio al mes cada sucursal?",
+      help: "Indique el ingreso mensual aproximado de cada sucursal en dólares.",
+      columnLabel: "Ingreso mensual"
     },
     {
-      id: "q02", section: "equipo", type: "single",
-      text: "¿Cuántas de esas personas atienden clientes o participan directamente en las ventas?",
-      options: ["1", "2", "3", "4", "Otro"], other: "Otro"
+      id: "q02", section: "finanzas", type: "branchTable", valueType: "currency",
+      text: "Restando costos y gastos, ¿qué ganancia obtiene en promedio al mes cada sucursal?",
+      help: "Indique la ganancia mensual aproximada de cada sucursal en dólares.",
+      columnLabel: "Ganancia mensual"
     },
     {
-      id: "q03", section: "equipo", type: "single",
-      text: "¿Están claramente definidas las responsabilidades de cada persona que participa en ventas?",
-      options: ["Sí, están claramente definidas", "En parte", "No, las tareas se reparten según sea necesario"]
+      id: "q03", section: "inversion", type: "currency",
+      text: "¿Qué presupuesto se destina aproximadamente al mes para publicidad?",
+      help: "Ingrese el monto mensual aproximado en dólares."
     },
     {
-      id: "q04", section: "equipo", type: "multi",
-      text: "Además de vender o atender clientes, ¿qué otras tareas realizan las personas encargadas de ventas?",
-      help: "Puede seleccionar varias.",
-      options: ["Preparación de arreglos", "Compras y relación con proveedores", "Administración", "Entregas", "Manejo de redes sociales", "Cobros o facturación", "Se dedican principalmente a vender y atender clientes", "Otras"],
-      other: "Otras", exclusive: ["Se dedican principalmente a vender y atender clientes"]
+      id: "q04", section: "inversion", type: "currency",
+      text: "¿Qué presupuesto mensual se destina a capacitar a las estilistas para potenciar sus habilidades de ventas?",
+      help: "Ingrese el monto mensual aproximado en dólares."
     },
     {
-      id: "q05", section: "equipo", type: "single",
-      text: "¿Las personas que venden han recibido capacitación relacionada con ventas o atención al cliente?",
-      options: ["Sí, capacitación formal", "Sí, aprendizaje o capacitación informal", "No", "No sé"]
+      id: "q05", section: "clientes", type: "branchTable", valueType: "integer",
+      text: "¿Cuántos clientes atiende en promedio al mes cada sucursal?",
+      help: "Esta información permitirá calcular el ticket promedio por sucursal.",
+      columnLabel: "Clientes al mes"
     },
     {
-      id: "q06", section: "estrategia", type: "single",
-      text: "¿Establecen metas de ventas?",
-      options: ["Sí, metas concretas y medibles", "Sí, pero de manera informal", "No"]
+      id: "q06", section: "clientes", type: "split",
+      text: "¿Qué porcentaje de los ingresos proviene de servicios y qué porcentaje de la venta de productos?",
+      help: "Los dos porcentajes deben sumar 100 %."
     },
     {
-      id: "q07", section: "estrategia", type: "multi",
-      text: "¿Qué tipo de metas utilizan?",
-      help: "Puede seleccionar varias.",
-      options: ["Monto de ventas", "Número de pedidos", "Ventas por producto", "Ventas en temporadas especiales", "Captación de nuevos clientes", "Recompra de clientes actuales", "Crecimiento respecto a períodos anteriores", "Otras"],
-      other: "Otras",
-      visible: function (answers) { return answers.q06 !== "No"; }
+      id: "q07", section: "portafolio", type: "text",
+      text: "¿Cuáles son los servicios o productos que más ingresos generan?",
+      help: "Puede mencionar varios servicios o productos."
     },
     {
-      id: "q08", section: "estrategia", type: "single",
-      text: "¿Con qué frecuencia revisan si están cumpliendo esas metas?",
-      options: ["Diariamente", "Semanalmente", "Mensualmente", "Solo en temporadas importantes", "Ocasionalmente", "No las revisamos de forma sistemática"],
-      visible: function (answers) { return answers.q06 !== "No"; }
+      id: "q08", section: "portafolio", type: "text",
+      text: "¿Cuáles son los servicios o productos que dejan un mayor margen de ganancia?",
+      help: "Puede mencionar varios servicios o productos."
     },
     {
-      id: "q09", section: "estrategia", type: "single",
-      text: "¿Tienen definido qué tipos de clientes son prioritarios para el negocio?",
-      options: ["Sí, claramente", "Tenemos una idea general", "No", "No consideramos necesario diferenciarlos"]
+      id: "q09", section: "crecimiento", type: "change",
+      text: "¿Cuánto han crecido o disminuido las ventas de la empresa durante el último año?",
+      help: "Seleccione el comportamiento e indique el porcentaje aproximado."
     },
     {
-      id: "q10", section: "estrategia", type: "single",
-      text: "¿Cómo deciden qué productos o servicios impulsar con mayor fuerza?",
-      options: ["Utilizando información de ventas, rentabilidad o demanda", "Principalmente según nuestra experiencia", "Principalmente según la temporada", "No priorizamos productos o servicios específicos", "De otra forma"],
-      other: "De otra forma"
-    },
-    {
-      id: "q11", section: "estrategia", type: "multi",
-      text: "¿Qué acciones utilizan actualmente para conseguir nuevos clientes?",
-      help: "Puede seleccionar varias.",
-      options: ["Instagram", "Facebook", "WhatsApp", "Publicidad pagada", "Promociones o descuentos", "Recomendaciones de clientes", "Alianzas con otros negocios", "Eventos o actividades locales", "Página web", "Google", "No realizamos acciones específicas para captar clientes", "Otras"],
-      other: "Otras", exclusive: ["No realizamos acciones específicas para captar clientes"]
-    },
-    {
-      id: "q12", section: "proceso", type: "multi",
-      text: "¿Por qué medios reciben consultas o pedidos?",
-      help: "Puede seleccionar varias.",
-      options: ["Local físico", "WhatsApp", "Instagram", "Facebook", "Teléfono", "Página web", "Google", "Otros"],
-      other: "Otros"
-    },
-    {
-      id: "q13", section: "proceso", type: "single",
-      text: "¿Cuál de esos medios genera actualmente más ventas?",
-      options: ["Local físico", "WhatsApp", "Instagram", "Facebook", "Teléfono", "Página web", "Google", "No sabemos", "Otro"],
-      other: "Otro"
-    },
-    {
-      id: "q14", section: "proceso", type: "single",
-      text: "Cuando un cliente consulta, ¿se sigue normalmente un proceso similar para atenderlo y cerrar la venta?",
-      options: ["Sí, tenemos una forma bastante definida de hacerlo", "Hay algunos pasos comunes, pero depende de cada caso", "No, cada venta se maneja de manera diferente"]
-    },
-    {
-      id: "q15", section: "proceso", type: "multi",
-      text: "¿Qué información suelen conocer antes de recomendar un arreglo o producto?",
-      help: "Puede seleccionar varias.",
-      options: ["Ocasión o motivo de compra", "Presupuesto", "Persona que recibirá el arreglo", "Tipo de flores o diseño deseado", "Fecha y hora de entrega", "Lugar de entrega", "Preferencias anteriores del cliente", "Normalmente el cliente ya sabe qué producto quiere", "Otra"],
-      other: "Otra"
-    },
-    {
-      id: "q16", section: "proceso", type: "single",
-      text: "Si un cliente consulta pero no compra inmediatamente, ¿suelen volver a contactarlo?",
-      options: ["Siempre o casi siempre", "Algunas veces", "Solo para pedidos importantes", "Nunca"]
-    },
-    {
-      id: "q17", section: "proceso", type: "single",
-      text: "¿Registran las consultas que finalmente no terminan en una venta?",
-      options: ["Sí, sistemáticamente", "Algunas veces", "No"]
-    },
-    {
-      id: "q18", section: "proceso", type: "multi",
-      text: "¿Cuáles suelen ser las principales razones por las que una consulta no termina en compra?",
-      help: "Puede seleccionar varias.",
-      options: ["Precio", "El cliente encontró otra opción", "No había disponibilidad del producto", "Tiempo de entrega", "El cliente dejó de responder", "No se encontró un diseño que le gustara", "El cliente cambió de opinión", "No sabemos por qué", "Otra"],
-      other: "Otra"
-    },
-    {
-      id: "q19", section: "proceso", type: "single",
-      text: "¿Existe una forma definida de manejar reclamos, errores o retrasos?",
-      options: ["Sí, existe un procedimiento claro", "Sabemos cómo actuar, aunque no existe un procedimiento formal", "Se decide según cada caso", "No hemos definido cómo actuar"]
-    },
-    {
-      id: "q20", section: "proceso", type: "single",
-      text: "Después de una venta, ¿vuelven a contactar al cliente?",
-      options: ["Siempre o casi siempre", "Algunas veces", "Solo en ciertos tipos de pedidos", "Nunca"]
-    },
-    {
-      id: "q21", section: "clientes", type: "multi",
-      text: "¿Qué tipos de clientes representan una parte importante de sus ventas?",
-      help: "Puede seleccionar varias.",
-      options: ["Personas que compran regalos", "Parejas", "Familias", "Empresas", "Clientes de bodas", "Clientes de eventos", "Clientes de funerales", "Iglesias o instituciones", "Otros"],
-      other: "Otros"
-    },
-    {
-      id: "q22", section: "clientes", type: "multi",
-      text: "¿Qué ocasiones generan una parte importante de sus ventas?",
-      help: "Puede seleccionar varias.",
-      options: ["Cumpleaños", "Aniversarios", "San Valentín", "Día de la Madre", "Graduaciones", "Bodas", "Funerales", "Eventos empresariales", "Regalos sin una fecha especial", "Otras"],
-      other: "Otras"
-    },
-    {
-      id: "q23", section: "clientes", type: "single",
-      text: "Aproximadamente, ¿qué porcentaje de sus ventas proviene de clientes que ya habían comprado anteriormente?",
-      options: ["Menos del 25 %", "Entre 25 % y 50 %", "Entre 51 % y 75 %", "Más del 75 %", "No sabemos"]
-    },
-    {
-      id: "q24", section: "clientes", type: "single",
-      text: "¿Con qué frecuencia los clientes mencionan o comparan sus opciones con otras florerías antes de comprar?",
-      options: ["Muy frecuentemente", "Frecuentemente", "Algunas veces", "Rara vez", "Nunca", "No sabemos"]
-    },
-    {
-      id: "q25", section: "clientes", type: "multi",
-      text: "Cuando comparan con otras florerías, ¿qué suelen comparar principalmente?",
-      help: "Puede seleccionar varias.",
-      options: ["Precio", "Calidad de las flores", "Diseño de los arreglos", "Tamaño o cantidad de flores", "Tiempo de entrega", "Costo de entrega", "Atención al cliente", "Variedad", "Reputación", "Otro"],
-      other: "Otro",
-      visible: function (answers) { return answers.q24 !== "Nunca" && answers.q24 !== "No sabemos"; }
-    },
-    {
-      id: "q26", section: "clientes", type: "single",
-      text: "¿Con qué frecuencia los clientes piden descuentos, negocian el precio o solicitan una alternativa más económica?",
-      options: ["Muy frecuentemente", "Frecuentemente", "Algunas veces", "Rara vez", "Nunca"]
-    },
-    {
-      id: "q27", section: "clientes", type: "multi",
-      text: "Cuando alguien decide no comprar flores, ¿qué alternativas han observado que suele elegir?",
-      help: "Puede seleccionar varias.",
-      options: ["Chocolates o dulces", "Regalos u objetos personales", "Plantas", "Dinero o tarjetas de regalo", "Comida o experiencias", "Otro tipo de decoración", "Simplemente no compra ningún regalo", "No sabemos", "Otra"],
-      other: "Otra"
-    },
-    {
-      id: "q28", section: "clientes", type: "multi", max: 3,
-      text: "Según su experiencia, ¿qué factores pesan más cuando sus clientes deciden comprar?",
-      help: "Seleccione como máximo 3.",
-      options: ["Precio", "Calidad de las flores", "Diseño de los arreglos", "Variedad", "Atención al cliente", "Rapidez", "Entrega a domicilio", "Ubicación", "Confianza o reputación", "Personalización", "Otro"],
-      other: "Otro"
-    },
-    {
-      id: "q29", section: "proveedores", type: "single",
-      text: "¿De cuántos proveedores principales dependen para conseguir flores e insumos importantes?",
-      options: ["1", "2", "3", "4", "No sé", "Otro"],
-      other: "Otro"
-    },
-    {
-      id: "q30", section: "proveedores", type: "single",
-      text: "Si uno de sus principales proveedores aumenta mucho sus precios o deja de tener producto, ¿qué tan fácil es sustituirlo?",
-      options: ["Muy fácil", "Relativamente fácil", "Difícil", "Muy difícil", "Depende del tipo de producto", "No sabemos"]
-    },
-    {
-      id: "q31", section: "proveedores", type: "matrix",
-      text: "Durante el último año, ¿con qué frecuencia han ocurrido las siguientes situaciones con proveedores?",
-      rows: ["Aumentos importantes de precios", "Falta de flores o insumos", "Retrasos en entregas", "Problemas de calidad"],
-      columns: ["Nunca", "Algunas veces", "Frecuentemente", "Muy frecuentemente", "No sé"]
-    },
-    {
-      id: "q32", section: "resultados", type: "single",
-      text: "¿Cómo registran actualmente sus ventas?",
-      options: ["Todas las ventas quedan registradas de forma detallada", "Registramos las ventas, pero con información básica", "Solo algunas ventas quedan registradas", "No llevamos un registro sistemático"]
-    },
-    {
-      id: "q33", section: "resultados", type: "multi",
-      text: "¿Qué información queda registrada en cada venta?",
-      help: "Puede seleccionar varias.",
-      options: ["Monto de la venta", "Producto o arreglo vendido", "Fecha", "Cliente", "Canal por el que llegó el cliente", "Costos", "Ganancia o margen", "Forma de pago", "Si era cliente nuevo o recurrente", "No registramos esta información", "Otra"],
-      other: "Otra", exclusive: ["No registramos esta información"]
-    },
-    {
-      id: "q34", section: "resultados", type: "multi",
-      text: "¿Qué información revisan periódicamente para tomar decisiones?",
-      help: "Puede seleccionar varias.",
-      options: ["Ventas totales", "Ventas por mes o temporada", "Productos más vendidos", "Productos más rentables", "Número de pedidos", "Clientes nuevos", "Clientes recurrentes", "Número de consultas que terminan en venta", "Comparación con períodos anteriores", "No revisamos indicadores de forma periódica", "Otra"],
-      other: "Otra", exclusive: ["No revisamos indicadores de forma periódica"]
-    },
-    {
-      id: "q35", section: "resultados", type: "text",
-      text: "Desde su experiencia, ¿cuáles son actualmente los principales factores que dificultan que Floristería La Isabella venda más?",
-      help: "Puede mencionar hasta tres factores."
+      id: "q10", section: "crecimiento", type: "percent",
+      text: "¿Qué meta de crecimiento en ventas tienen para el próximo año?",
+      help: "Ingrese el porcentaje de crecimiento esperado."
     }
   ];
 
@@ -253,12 +105,6 @@
   const startedAt = state.startedAt || new Date().toISOString();
   state.startedAt = startedAt;
 
-  function visibleQuestions() {
-    return QUESTIONS.filter(function (question) {
-      return !question.visible || question.visible(state.answers);
-    });
-  }
-
   function make(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -266,8 +112,8 @@
     return node;
   }
 
-  function optionId(questionId, index) {
-    return questionId + "_option_" + index;
+  function visibleQuestions() {
+    return QUESTIONS;
   }
 
   function render() {
@@ -292,40 +138,97 @@
 
     els.card.replaceChildren();
     const fieldset = make("fieldset", "question-fieldset");
-    const number = make("span", "question-number", "Pregunta " + question.id.slice(1));
+    const number = make("span", "question-number", "Pregunta " + String(index + 1).padStart(2, "0"));
     const legend = make("legend", "question-title", question.text);
     fieldset.append(number, legend);
 
     if (question.help) fieldset.append(make("p", "question-help", question.help));
 
-    if (question.type === "single" || question.type === "multi") {
-      fieldset.append(renderOptions(question));
-    } else if (question.type === "matrix") {
-      fieldset.append(renderMatrix(question));
-    } else {
-      const textarea = make("textarea", "open-field");
-      textarea.id = question.id;
-      textarea.name = question.id;
-      textarea.rows = 6;
-      textarea.maxLength = 1200;
-      textarea.placeholder = "Escriba su respuesta aquí…";
-      textarea.value = state.answers[question.id] || "";
-      textarea.addEventListener("input", function () {
-        state.answers[question.id] = textarea.value;
-        saveDraft();
-      });
-      fieldset.append(textarea);
-    }
+    if (question.type === "branchTable") fieldset.append(renderBranchTable(question));
+    if (question.type === "currency") fieldset.append(renderNumberField(question, "US$", "0.00", "0.01"));
+    if (question.type === "percent") fieldset.append(renderNumberField(question, "%", "0", "0.1", true));
+    if (question.type === "multi") fieldset.append(renderOptions(question));
+    if (question.type === "split") fieldset.append(renderSplit(question));
+    if (question.type === "change") fieldset.append(renderChange(question));
+    if (question.type === "text") fieldset.append(renderText(question));
 
     els.card.append(fieldset);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function numericInput(id, value, step, placeholder, ariaLabel) {
+    const input = make("input", "number-input");
+    input.id = id;
+    input.type = "number";
+    input.inputMode = "decimal";
+    input.min = "0";
+    input.step = step;
+    input.placeholder = placeholder;
+    input.value = value === null || typeof value === "undefined" ? "" : value;
+    input.setAttribute("aria-label", ariaLabel);
+    return input;
+  }
+
+  function renderBranchTable(question) {
+    const wrap = make("div", "branch-table-wrap");
+    const table = make("table", "branch-table");
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    headRow.append(make("th", "", "Sucursal"), make("th", "", question.columnLabel));
+    thead.append(headRow);
+    table.append(thead);
+
+    const tbody = document.createElement("tbody");
+    const current = state.answers[question.id] || {};
+    BRANCHES.forEach(function (branch, index) {
+      const row = document.createElement("tr");
+      row.append(make("th", "branch-name", branch));
+      const cell = document.createElement("td");
+      const inputWrap = make("div", "number-control");
+      if (question.valueType === "currency") inputWrap.append(make("span", "number-affix", "US$"));
+      const input = numericInput(
+        question.id + "_branch_" + index,
+        current[branch],
+        question.valueType === "integer" ? "1" : "0.01",
+        question.valueType === "integer" ? "0" : "0.00",
+        question.columnLabel + " de " + branch
+      );
+      input.addEventListener("input", function () {
+        state.answers[question.id] = Object.assign({}, state.answers[question.id], { [branch]: input.value });
+        saveDraft();
+      });
+      inputWrap.append(input);
+      cell.append(inputWrap);
+      row.append(cell);
+      tbody.append(row);
+    });
+    table.append(tbody);
+    wrap.append(table);
+    return wrap;
+  }
+
+  function renderNumberField(question, affix, placeholder, step, suffix) {
+    const wrap = make("div", "single-number-wrap");
+    const control = make("div", "number-control number-control-large");
+    if (!suffix) control.append(make("span", "number-affix", affix));
+    const input = numericInput(question.id, state.answers[question.id], step, placeholder, question.text);
+    input.addEventListener("input", function () {
+      state.answers[question.id] = input.value;
+      saveDraft();
+    });
+    control.append(input);
+    if (suffix) control.append(make("span", "number-affix number-affix-suffix", affix));
+    wrap.append(control);
+    return wrap;
+  }
+
+  function optionId(questionId, index) {
+    return questionId + "_option_" + index;
+  }
+
   function renderOptions(question) {
     const wrapper = make("div", "options-list");
-    const selected = question.type === "multi"
-      ? (Array.isArray(state.answers[question.id]) ? state.answers[question.id] : [])
-      : state.answers[question.id];
+    const selected = Array.isArray(state.answers[question.id]) ? state.answers[question.id] : [];
 
     question.options.forEach(function (option, index) {
       const id = optionId(question.id, index);
@@ -333,21 +236,18 @@
       label.setAttribute("for", id);
       const input = document.createElement("input");
       input.id = id;
-      input.type = question.type === "multi" ? "checkbox" : "radio";
+      input.type = "checkbox";
       input.name = question.id;
       input.value = option;
-      input.checked = question.type === "multi" ? selected.includes(option) : selected === option;
-      const text = make("span", "", option);
-      label.append(input, text);
+      input.checked = selected.includes(option);
+      label.append(input, make("span", "", option));
       wrapper.append(label);
 
       input.addEventListener("change", function () {
-        if (question.type === "single") {
-          state.answers[question.id] = option;
-        } else {
-          applyMultiSelection(question, option, input.checked);
-        }
-        reconcileBranches();
+        const values = Array.isArray(state.answers[question.id]) ? state.answers[question.id].slice() : [];
+        state.answers[question.id] = input.checked
+          ? values.concat(values.includes(option) ? [] : [option])
+          : values.filter(function (value) { return value !== option; });
         saveDraft();
         render();
       });
@@ -355,12 +255,12 @@
 
     const outer = make("div");
     outer.append(wrapper);
-    if (question.other && isOtherSelected(question)) {
+    if (isOtherSelected(question)) {
       const otherWrap = make("div", "other-wrap");
       const other = make("input", "other-field");
       other.type = "text";
       other.id = question.id + "_other";
-      other.placeholder = "Especifique su respuesta";
+      other.placeholder = "Especifique el medio";
       other.maxLength = 220;
       other.value = state.other[question.id] || "";
       other.addEventListener("input", function () {
@@ -373,68 +273,106 @@
     return outer;
   }
 
-  function applyMultiSelection(question, option, checked) {
-    let values = Array.isArray(state.answers[question.id]) ? state.answers[question.id].slice() : [];
-    const exclusive = question.exclusive || [];
-
-    if (checked) {
-      if (exclusive.includes(option)) {
-        values = [option];
-      } else {
-        values = values.filter(function (value) { return !exclusive.includes(value); });
-        if (!values.includes(option)) values.push(option);
-      }
-    } else {
-      values = values.filter(function (value) { return value !== option; });
-    }
-
-    if (question.max && values.length > question.max) {
-      values = values.filter(function (value) { return value !== option; });
-      els.error.textContent = "Puede seleccionar como máximo " + question.max + " opciones.";
-    }
-    state.answers[question.id] = values;
-  }
-
   function isOtherSelected(question) {
     const answer = state.answers[question.id];
-    return Array.isArray(answer) ? answer.includes(question.other) : answer === question.other;
+    return Array.isArray(answer) && answer.includes(question.other);
   }
 
-  function renderMatrix(question) {
-    const wrap = make("div", "matrix-wrap");
-    const table = make("table", "matrix");
-    const thead = document.createElement("thead");
-    const headRow = document.createElement("tr");
-    headRow.append(make("th", "", "Situación"));
-    question.columns.forEach(function (column) { headRow.append(make("th", "", column)); });
-    thead.append(headRow);
-    table.append(thead);
-
-    const tbody = document.createElement("tbody");
+  function renderSplit(question) {
     const current = state.answers[question.id] || {};
-    question.rows.forEach(function (rowLabel, rowIndex) {
-      const row = document.createElement("tr");
-      row.append(make("td", "", rowLabel));
-      question.columns.forEach(function (column, columnIndex) {
-        const cell = document.createElement("td");
-        const input = document.createElement("input");
-        input.type = "radio";
-        input.name = question.id + "_row_" + rowIndex;
-        input.value = column;
-        input.setAttribute("aria-label", rowLabel + ": " + column);
-        input.checked = current[rowLabel] === column;
-        input.addEventListener("change", function () {
-          state.answers[question.id] = Object.assign({}, state.answers[question.id], { [rowLabel]: column });
-          saveDraft();
-        });
-        cell.append(input);
-        row.append(cell);
+    const wrap = make("div", "split-grid");
+    const total = make("p", "split-total");
+
+    ["Servicios", "Productos"].forEach(function (labelText) {
+      const label = make("label", "split-field");
+      label.append(make("span", "split-label", labelText));
+      const control = make("div", "number-control");
+      const input = numericInput(question.id + "_" + labelText.toLowerCase(), current[labelText], "0.1", "0", "Porcentaje de " + labelText.toLowerCase());
+      input.max = "100";
+      input.addEventListener("input", function () {
+        state.answers[question.id] = Object.assign({}, state.answers[question.id], { [labelText]: input.value });
+        updateTotal();
+        saveDraft();
       });
-      tbody.append(row);
+      control.append(input, make("span", "number-affix number-affix-suffix", "%"));
+      label.append(control);
+      wrap.append(label);
     });
-    table.append(tbody);
-    wrap.append(table);
-    return wrap;
+
+    function updateTotal() {
+      const answer = state.answers[question.id] || {};
+      const sum = (Number(answer.Servicios) || 0) + (Number(answer.Productos) || 0);
+      total.textContent = "Total: " + sum.toLocaleString("es-SV", { maximumFractionDigits: 1 }) + " %";
+      total.classList.toggle("is-complete", Math.abs(sum - 100) < 0.001);
+    }
+
+    updateTotal();
+    const outer = make("div");
+    outer.append(wrap, total);
+    return outer;
+  }
+
+  function renderChange(question) {
+    const current = state.answers[question.id] || {};
+    const outer = make("div", "change-wrap");
+    const choices = make("div", "change-options");
+
+    ["Crecieron", "Disminuyeron", "Se mantuvieron estables"].forEach(function (option, index) {
+      const id = question.id + "_change_" + index;
+      const label = make("label", "option option-compact");
+      label.setAttribute("for", id);
+      const input = document.createElement("input");
+      input.id = id;
+      input.type = "radio";
+      input.name = question.id + "_direction";
+      input.value = option;
+      input.checked = current.direccion === option;
+      input.addEventListener("change", function () {
+        state.answers[question.id] = Object.assign({}, state.answers[question.id], {
+          direccion: option,
+          porcentaje: option === "Se mantuvieron estables" ? "0" : (state.answers[question.id] || {}).porcentaje || ""
+        });
+        saveDraft();
+        render();
+      });
+      label.append(input, make("span", "", option));
+      choices.append(label);
+    });
+    outer.append(choices);
+
+    if (current.direccion && current.direccion !== "Se mantuvieron estables") {
+      const percentage = make("label", "change-percentage");
+      percentage.append(make("span", "split-label", "Porcentaje aproximado"));
+      const control = make("div", "number-control number-control-large");
+      const input = numericInput(question.id + "_percentage", current.porcentaje, "0.1", "0", "Porcentaje aproximado");
+      control.append(input, make("span", "number-affix number-affix-suffix", "%"));
+      percentage.append(control);
+      input.addEventListener("input", function () {
+        state.answers[question.id] = Object.assign({}, state.answers[question.id], { porcentaje: input.value });
+        saveDraft();
+      });
+      outer.append(percentage);
+    }
+    return outer;
+  }
+
+  function renderText(question) {
+    const textarea = make("textarea", "open-field");
+    textarea.id = question.id;
+    textarea.name = question.id;
+    textarea.rows = 6;
+    textarea.maxLength = 1200;
+    textarea.placeholder = "Escriba su respuesta aquí…";
+    textarea.value = state.answers[question.id] || "";
+    textarea.addEventListener("input", function () {
+      state.answers[question.id] = textarea.value;
+      saveDraft();
+    });
+    return textarea;
+  }
+
+  function validNonNegative(value) {
+    return value !== "" && value !== null && typeof value !== "undefined" && Number.isFinite(Number(value)) && Number(value) >= 0;
   }
 
   function validateCurrent() {
@@ -442,13 +380,34 @@
     const answer = state.answers[currentId];
     let message = "";
 
-    if (question.type === "single" && !answer) message = "Seleccione una opción para continuar.";
-    if (question.type === "multi" && (!Array.isArray(answer) || answer.length === 0)) message = "Seleccione al menos una opción para continuar.";
-    if (question.type === "multi" && question.max && Array.isArray(answer) && answer.length > question.max) message = "Puede seleccionar como máximo " + question.max + " opciones.";
-    if (question.type === "text" && (!answer || !answer.trim())) message = "Escriba una respuesta para continuar.";
-    if (question.type === "matrix") {
-      const rowsAnswered = answer && typeof answer === "object" ? Object.keys(answer).length : 0;
-      if (rowsAnswered < question.rows.length) message = "Responda todas las situaciones de la tabla para continuar.";
+    if (question.type === "branchTable") {
+      const complete = answer && BRANCHES.every(function (branch) { return validNonNegative(answer[branch]); });
+      if (!complete) message = "Complete el dato correspondiente a cada sucursal para continuar.";
+    }
+    if ((question.type === "currency" || question.type === "percent") && !validNonNegative(answer)) {
+      message = "Ingrese un valor válido para continuar.";
+    }
+    if (question.type === "multi" && (!Array.isArray(answer) || answer.length === 0)) {
+      message = "Seleccione al menos una opción para continuar.";
+    }
+    if (question.type === "text" && (!answer || !answer.trim())) {
+      message = "Escriba una respuesta para continuar.";
+    }
+    if (question.type === "split") {
+      const services = answer && answer.Servicios;
+      const products = answer && answer.Productos;
+      if (!validNonNegative(services) || !validNonNegative(products)) {
+        message = "Complete ambos porcentajes para continuar.";
+      } else if (Math.abs(Number(services) + Number(products) - 100) > 0.001) {
+        message = "Los porcentajes de servicios y productos deben sumar exactamente 100 %.";
+      }
+    }
+    if (question.type === "change") {
+      if (!answer || !answer.direccion) {
+        message = "Seleccione cómo se comportaron las ventas para continuar.";
+      } else if (answer.direccion !== "Se mantuvieron estables" && !validNonNegative(answer.porcentaje)) {
+        message = "Ingrese el porcentaje aproximado para continuar.";
+      }
     }
     if (!message && question.other && isOtherSelected(question) && !(state.other[question.id] || "").trim()) {
       message = "Especifique la opción “" + question.other + "” para continuar.";
@@ -470,29 +429,13 @@
     render();
   }
 
-  function reconcileBranches() {
-    if (state.answers.q06 === "No") {
-      delete state.answers.q07;
-      delete state.answers.q08;
-      delete state.other.q07;
-    }
-    if (state.answers.q24 === "Nunca" || state.answers.q24 === "No sabemos") {
-      delete state.answers.q25;
-      delete state.other.q25;
-    }
-  }
-
   function finalAnswers() {
     const copy = JSON.parse(JSON.stringify(state.answers));
     QUESTIONS.forEach(function (question) {
       if (!question.other || !isOtherSelected(question)) return;
       const other = (state.other[question.id] || "").trim();
-      if (Array.isArray(copy[question.id])) {
-        copy[question.id] = copy[question.id].filter(function (value) { return value !== question.other; });
-        copy[question.id].push(question.other + ": " + other);
-      } else {
-        copy[question.id] = question.other + ": " + other;
-      }
+      copy[question.id] = copy[question.id].filter(function (value) { return value !== question.other; });
+      copy[question.id].push(question.other + ": " + other);
     });
     return copy;
   }

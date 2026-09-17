@@ -2,16 +2,22 @@
 
 ## Parte 1. Instalar el receptor en Google Sheets
 
-1. Abra la hoja **Florería La Isabella - Respuestas del cuestionario**:
+1. Abra la hoja de Google Sheets vinculada actualmente al cuestionario:
    https://docs.google.com/spreadsheets/d/1HR3A6Kct3fLepX92-lhaxSdgBWLxBMUmaB8kwU5axM8/edit
 2. En la hoja, abra **Extensiones → Apps Script**.
 3. En el editor, seleccione el archivo **Código.gs**.
 4. Borre todo su contenido.
 5. Abra el archivo local **apps-script/Code.gs** de esta carpeta, copie todo y péguelo en Código.gs.
-6. Cambie el nombre del proyecto a **Florería La Isabella - Receptor del cuestionario**.
+6. Cambie el nombre del proyecto a **Clínica 180° - Receptor del cuestionario**.
 7. Pulse **Guardar proyecto en Drive**.
 
+El código utilizará la pestaña **Respuestas**, ya preparada con las columnas de Clínica 180°.
+
 ## Parte 2. Crear la aplicación web
+
+Si ya había implementado la versión anterior, abra **Implementar → Administrar implementaciones**, edite la implementación, seleccione **Nueva versión** y pulse **Implementar**. Así conservará la URL que ya está guardada en el formulario.
+
+Si todavía no existe una implementación:
 
 1. En Apps Script, pulse **Implementar → Nueva implementación**.
 2. Junto a **Seleccionar tipo**, pulse el engranaje y seleccione **App web**.
@@ -23,7 +29,7 @@
 5. Cuando Google pida autorización, pulse **Autorizar acceso** y seleccione su cuenta.
 6. Si aparece la advertencia “Google no verificó esta app”:
    - Pulse **Avanzado**.
-   - Pulse **Ir a Florería La Isabella - Receptor del cuestionario (no seguro)**.
+   - Pulse **Ir a Clínica 180° - Receptor del cuestionario (no seguro)**.
    - Pulse **Permitir**.
 7. Copie la **URL de la aplicación web**. Debe terminar en **/exec**.
 
@@ -41,7 +47,7 @@ La advertencia aparece porque el script es privado y fue creado por usted, no po
 
 El resultado debe verse así:
 
-    window.LA_ISABELLA_CONFIG = {
+    window.CLINICA_180_CONFIG = {
       endpoint: "https://script.google.com/macros/s/IDENTIFICADOR/exec"
     };
 
@@ -49,7 +55,7 @@ El resultado debe verse así:
 
 Nombre recomendado del repositorio:
 
-    cuestionario-floristeria-la-isabella
+    cuestionario-clinica-180
 
 El nombre puede ser diferente; no afecta la conexión con Google Sheets.
 
